@@ -1,0 +1,14 @@
+
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*~
+.DS_Store
+temp*.xlsx
+temp*.png
+*.log
+.vscode/
+.idea/
+*.db
+*.json
