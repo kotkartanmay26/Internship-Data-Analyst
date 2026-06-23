@@ -22,8 +22,8 @@ st.markdown("""
 
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #04152D 0%, #0A2A66 100%) !important;
-    min-width: 320px !important;
-    max-width: 320px !important;
+    min-width: 280px !important;
+    max-width: 340px !important;
     border-right: 1px solid rgba(255,255,255,0.1) !important;
 }
 
@@ -34,7 +34,8 @@ st.markdown("""
 }
 
 [data-testid="block-container"] {
-    padding: 32px 48px !important;
+    padding: 24px 32px !important;
+    max-width: 100% !important;
 }
 
 .main {
@@ -43,102 +44,102 @@ st.markdown("""
 
 .kpi-card {
     background: white;
-    border-radius: 24px;
-    padding: 32px 28px;
+    border-radius: 20px;
+    padding: 28px 24px;
     border: 1px solid #F1F5F9;
     box-shadow: 0 8px 24px rgba(10,42,102,0.06);
     transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
 }
 
 .kpi-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-6px);
     box-shadow: 0 20px 40px rgba(10,42,102,0.12);
     border-color: #DBEAFE;
 }
 
 .kpi-value {
-    font-size: clamp(32px,4vw,48px) !important;
+    font-size: clamp(28px,4vw,44px) !important;
     font-weight: 800 !important;
     background: linear-gradient(135deg, #0A2A66 0%, #1E40AF 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent !important;
-    margin:16px 0 10px !important;
+    margin:14px 0 8px !important;
 }
 
 .kpi-label {
-    font-size: clamp(15px, 1.8vw,18px) !important;
+    font-size: clamp(14px, 1.8vw,17px) !important;
     font-weight: 700 !important;
     color: #475569 !important;
     text-transform:none;
 }
 
 .kpi-trend {
-    font-size: 15px !important;
+    font-size: 14px !important;
     font-weight:700 !important;
 }
 
 .chart-card {
     background: white;
-    border-radius:24px;
-    padding:36px;
+    border-radius:20px;
+    padding:32px;
     border:1px solid #F1F5F9;
     box-shadow:0 8px 24px rgba(10,42,102,0.06);
-    margin-bottom: 32px;
+    margin-bottom: 28px;
 }
 
 .chart-title {
-    font-size: clamp(20px, 2.5vw,26px) !important;
+    font-size: clamp(18px, 2.5vw,24px) !important;
     font-weight:800 !important;
     color:#0A2A66 !important;
-    margin-bottom: 28px !important;
+    margin-bottom: 24px !important;
     letter-spacing: -0.3px;
 }
 
 div.stButton > button {
-    font-size: 15px !important;
+    font-size: 14px !important;
     font-weight: 700 !important;
-    padding: 14px 24px !important;
+    padding: 12px 20px !important;
     border-radius: 12px !important;
     transition: all 0.25s ease !important;
     white-space: nowrap !important;
     width: 100% !important;
-    min-width: 160px !important;
+    min-width: 140px !important;
 }
 
 [data-testid="stDataFrame"] {
-    font-size:14px !important;
+    font-size:13px !important;
 }
 
 [data-testid="stDataFrame"] th {
-    font-size:15px !important;
+    font-size:14px !important;
     font-weight:800 !important;
     color:#0A2A66 !important;
     background:#F8FAFC !important;
-    padding:16px 20px !important;
+    padding:14px 18px !important;
 }
 
 [data-testid="stDataFrame"] td {
-    padding:16px 20px !important;
+    padding:14px 18px !important;
 }
 
 .sidebar-logo {
-    width:60px;
-    height:60px;
-    border-radius:16px;
+    width:56px;
+    height:56px;
+    border-radius:14px;
     background:linear-gradient(135deg,#2563EB 0%,#0A2A66 100%);
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:32px;
+    font-size:30px;
     color:white;
     box-shadow:0 12px 32px rgba(37,99,235,0.35);
 }
 
 .quick-action-card {
     background: linear-gradient(135deg,#F8FAFC 0%,#F1F5F9 100%);
-    border-radius:20px;
-    padding:28px 20px;
+    border-radius:18px;
+    padding:24px 18px;
     border:1px solid #E2E8F0;
     text-align:center;
     transition: all 0.3s ease;
@@ -152,14 +153,31 @@ div.stButton > button {
 }
 
 .quick-action-icon {
-    font-size:40px;
-    margin-bottom:14px;
+    font-size:36px;
+    margin-bottom:12px;
 }
 
 .quick-action-text {
-    font-size:15px;
+    font-size:14px;
     font-weight:800;
     color:#0A2A66;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+    [data-testid="block-container"] {
+        padding: 20px 24px !important;
+    }
+    
+    .chart-card {
+        padding:28px;
+    }
+}
+
+@media (max-width: 1024px) {
+    [data-testid="block-container"] {
+        padding: 16px 20px !important;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -271,7 +289,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-header_col1, header_col2 = st.columns([1,2.5])
+header_col1, header_col2 = st.columns([1.2, 3])
 with header_col1:
     st.markdown("""
     <div>
