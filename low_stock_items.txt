@@ -1,0 +1,639 @@
+ITEMS WITH LOW STOCK
+============================================================
+
+Item Number: 1
+Description: AAOR - O Ring 75 FPM FDA 53.65X2.62
+Balance Qty: 6389
+Stock Qty: 0
+Shortage: 6389
+----------------------------------------
+Item Number: 50
+Description: Silicon Black 70 Shrink Tube 4X2.7
+Balance Qty: 2000
+Stock Qty: 0
+Shortage: 2000
+----------------------------------------
+Item Number: 66831
+Description: 66831-NBR 70 Bush 9x30x8/20 With Collar
+Balance Qty: 2000
+Stock Qty: 28
+Shortage: 1972
+----------------------------------------
+Item Number: 25222730001
+Description: 84205 - NR 55 RUBBER COVER 80/84X8/10 PL MOULD181702104
+Balance Qty: 1777
+Stock Qty: 0
+Shortage: 1777
+----------------------------------------
+Item Number: 04407
+Description: AASD - HNBR 80 O Ring 76.2x1.78
+Balance Qty: 1705
+Stock Qty: 0
+Shortage: 1705
+----------------------------------------
+Item Number: 210075
+Description: 21,-,075,SEAL KIT,NBR 70,FNSH,-,-,-
+Balance Qty: 1600
+Stock Qty: 0
+Shortage: 1600
+----------------------------------------
+Item Number: 66513
+Description: 66513 - NBR 70 Bush 8x26x12mm
+Balance Qty: 1500
+Stock Qty: 30
+Shortage: 1470
+----------------------------------------
+Item Number: 04406
+Description: AOY - NBR 70 O Ring 17.46x1.78
+Balance Qty: 850
+Stock Qty: 0
+Shortage: 850
+----------------------------------------
+Item Number: 210085
+Description: 21,-,085,SEAL KIT,NBR 70,FNSH,-,-,-
+Balance Qty: 800
+Stock Qty: 0
+Shortage: 800
+----------------------------------------
+Item Number: 210100
+Description: - 21,-,100,SEAL KIT,NBR 70,FNSH,-,-,-
+Balance Qty: 700
+Stock Qty: 0
+Shortage: 700
+----------------------------------------
+Item Number: 1137
+Description: APW-NBR 70 O Ring 28x3 MM
+Balance Qty: 700
+Stock Qty: 0
+Shortage: 700
+----------------------------------------
+Item Number: 0079
+Description: AAWZ- Silicone Red 70 H,O Ring,ID7.9,C/S2.68
+Balance Qty: 670
+Stock Qty: 0
+Shortage: 670
+----------------------------------------
+Item Number: 0775
+Description: ATI - H,O-RING,ID77.5,C/S3.6,SILICON Red 70,-,-
+Balance Qty: 644
+Stock Qty: 0
+Shortage: 644
+----------------------------------------
+Item Number: 0820
+Description: ARJ - H,O-RING,ID82,C/S2.5,SILICONERed 70,-,-
+Balance Qty: 642
+Stock Qty: 0
+Shortage: 642
+----------------------------------------
+Item Number: 0090
+Description: AUR - H,O-RING,ID9,C/S3.1,SILICONE RED 70,-,-
+Balance Qty: 540
+Stock Qty: 0
+Shortage: 540
+----------------------------------------
+Item Number: 210065
+Description: 21,-,065,SEAL KIT,NBR 70,FNSH,-,-,-
+Balance Qty: 500
+Stock Qty: 0
+Shortage: 500
+----------------------------------------
+Item Number: 400
+Description: 5774 - H,DOWTY WASHER,M12,-,MS Gr-B,BZ PLTD,-NBR 85
+Balance Qty: 500
+Stock Qty: 0
+Shortage: 500
+----------------------------------------
+Item Number: 154026
+Description: AUN - O Ring NBR 70 1.484x0.139
+Balance Qty: 400
+Stock Qty: 0
+Shortage: 400
+----------------------------------------
+Item Number: 0171
+Description: AIK - H,O-RING,ID17.1,C/S2.68,SILICONE RED 70,-,-
+Balance Qty: 322
+Stock Qty: 0
+Shortage: 322
+----------------------------------------
+Item Number: 210115
+Description: - 21,-,115,SEAL KIT,NBR 70,FNSH,-,-,-
+Balance Qty: 300
+Stock Qty: 0
+Shortage: 300
+----------------------------------------
+Item Number: 009915
+Description: AAFQ - O RING NBR 40 54,00X3,00
+Balance Qty: 300
+Stock Qty: 0
+Shortage: 300
+----------------------------------------
+Item Number: 210055
+Description: 21,-,055,SEAL KIT,NBR 70,FNSH,-,-,-
+Balance Qty: 300
+Stock Qty: 0
+Shortage: 300
+----------------------------------------
+Item Number: 210150
+Description: 81783 - 150,Plug Silicone Red 70, Fnsh
+Balance Qty: 240
+Stock Qty: 0
+Shortage: 240
+----------------------------------------
+Item Number: 0980
+Description: ARK - H,O-RING,ID98,C/S2.5,SILICONE Red 70,-,-
+Balance Qty: 238
+Stock Qty: 0
+Shortage: 238
+----------------------------------------
+Item Number: 13057
+Description: 82549 - IF7848 IF Silicone Rubber Damper (40SR)
+Balance Qty: 210
+Stock Qty: 0
+Shortage: 210
+----------------------------------------
+Item Number: 13
+Description: AADI - NBR 70 O Ring 19.7x2.5
+Balance Qty: 200
+Stock Qty: 0
+Shortage: 200
+----------------------------------------
+Item Number: 210125
+Description: - 21,-,125,SEAL KIT,NBR 70,FNSH,-,-,-
+Balance Qty: 200
+Stock Qty: 0
+Shortage: 200
+----------------------------------------
+Item Number: 0899
+Description: API H,O-RING,ID89.9,C/S5.4,SILICONE RED 70,-,-
+Balance Qty: 200
+Stock Qty: 0
+Shortage: 200
+----------------------------------------
+Item Number: 0400
+Description: AAYN - H,O-RING,ID40,C/S2.68,SILICONE Red 70,-,-
+Balance Qty: 189
+Stock Qty: 0
+Shortage: 189
+----------------------------------------
+Item Number: 0136
+Description: AAWI - H,O-RING,ID 13.6,C/S3.4,VITON B 70,-,-
+Balance Qty: 184
+Stock Qty: 0
+Shortage: 184
+----------------------------------------
+Item Number: 0330
+Description: O-134 - H,O-RING,ID33,C/S4,SILICONE RED 70,-,-
+Balance Qty: 175
+Stock Qty: 0
+Shortage: 175
+----------------------------------------
+Item Number: 1140
+Description: AJD - H,O-RING,ID114,C/S2.62,SILICONE RED 70,-,-
+Balance Qty: 105
+Stock Qty: 0
+Shortage: 105
+----------------------------------------
+Item Number: 0290
+Description: AWZ - H,O-RING,ID29,C/S2.5,NBR 70,-,-
+Balance Qty: 100
+Stock Qty: 0
+Shortage: 100
+----------------------------------------
+Item Number: 70771
+Description: 70771-NBR 70 Profile Cord 9x2.5MM
+Balance Qty: 100
+Stock Qty: 0
+Shortage: 100
+----------------------------------------
+Item Number: 210175
+Description: - 21,-,175,SEAL KIT,NBR 70,FNSH,-,-,-
+Balance Qty: 100
+Stock Qty: 0
+Shortage: 100
+----------------------------------------
+Item Number: 0206
+Description: AIL - H,O-RING,ID20.6,C/S2.72,SILICONE Red 70,-,-
+Balance Qty: 100
+Stock Qty: 0
+Shortage: 100
+----------------------------------------
+Item Number: 0240
+Description: AQG - H,O-RING,ID24,C/S2.5,SILICONE RED 70,-,-
+Balance Qty: 100
+Stock Qty: 0
+Shortage: 100
+----------------------------------------
+Item Number: 1680
+Description: AMA - H,O-RING,ID 168,C/S2.5,NBR 70,-,-
+Balance Qty: 100
+Stock Qty: 0
+Shortage: 100
+----------------------------------------
+Item Number: 0540
+Description: O-171 - H,O-RING,ID54,C/S5,NBR 70,-,-
+Balance Qty: 100
+Stock Qty: 0
+Shortage: 100
+----------------------------------------
+Item Number: 0489
+Description: AOV - H,O-RING,ID48.9,C/S2.68,SILICONE Red 70,-,-
+Balance Qty: 100
+Stock Qty: 0
+Shortage: 100
+----------------------------------------
+Item Number: 252008
+Description: 5385 - 25,250,008,SQUAD SEAL,NBR 70(SILICONE FREE)
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 0346
+Description: AIK - H,O-RING,ID34.6,C/S2.68,SILICONE Red 70,-,-
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 252007
+Description: 5390 - 25,250,007,SQUAD SEAL,NBR 70(SILICONE FREE)
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 253012
+Description: 5385 - 25,300,012,SQUAD SEAL,NBR 70(SILICONE FREE)
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 2409
+Description: AAER - H,O-RING,ID240.89,C/S3.53,NBR 70-,-
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 70770
+Description: 70770-NBR 70/75 Profile Cord 15x9MM
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 5288888
+Description: NBR 70 Rot Shaft Lip Seal 47x58x7
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 5288889
+Description: NBR 70 Rot Shaft Lip Seal 37x50x7
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 0190
+Description: O-200 - H,O-RING,ID 19,C/S3.5,NBR 70,-,-
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 0150
+Description: AWH - H,O-RING,ID15,C/S3.5,SILICONE RED 70,-,-
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 1930
+Description: AMA - H,O-RING,ID193,C/S2.5,NBR 70,-,-
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 1460
+Description: AMA - H,O-RING,ID145,C/S1.78,NBR 70,-,-
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 0110
+Description: AIH - H,O-RING,ID11,C/S3.6,SILICONE Red 70,-,-
+Balance Qty: 50
+Stock Qty: 0
+Shortage: 50
+----------------------------------------
+Item Number: 1203
+Description: AABD - H,O-RING,ID 120.32,C/S2.62,VITON B 70,-,-
+Balance Qty: 45
+Stock Qty: 0
+Shortage: 45
+----------------------------------------
+Item Number: 0785
+Description: AKD - H,O-RING,ID 78.5,C/S2.62,VITON B90,-,-
+Balance Qty: 38
+Stock Qty: 0
+Shortage: 38
+----------------------------------------
+Item Number: 199824
+Description: O-273 - NBR 70 O Ring 2.55x0.103
+Balance Qty: 28
+Stock Qty: 0
+Shortage: 28
+----------------------------------------
+Item Number: 0340
+Description: JO-H,O-RING,ID34C/S2,EPDM 70(SILICONE FREE),- WRAS CERT
+Balance Qty: 26
+Stock Qty: 0
+Shortage: 26
+----------------------------------------
+Item Number: 0186
+Description: AZS - H,O-RING,ID 18.64,C/S2.86,VITON B 70,-,-
+Balance Qty: 25
+Stock Qty: 0
+Shortage: 25
+----------------------------------------
+Item Number: 6000745
+Description: AAJW-NBR 70 O Ring 170.82x5.33
+Balance Qty: 24
+Stock Qty: 0
+Shortage: 24
+----------------------------------------
+Item Number: 0680
+Description: SA - H,O-RING,ID68,C/S3.6,SILICONE RED 70,-,-
+Balance Qty: 23
+Stock Qty: 0
+Shortage: 23
+----------------------------------------
+Item Number: 3349242040
+Description: O-118 - NBR 70 O Ring 80x6
+Balance Qty: 20
+Stock Qty: 0
+Shortage: 20
+----------------------------------------
+Item Number: 166758
+Description: AVP-NBR 70 O Ring 58.4X2.62
+Balance Qty: 20
+Stock Qty: 0
+Shortage: 20
+----------------------------------------
+Item Number: 3349242010
+Description: O-291 - NBR 70 O Ring 45x5.6
+Balance Qty: 20
+Stock Qty: 0
+Shortage: 20
+----------------------------------------
+Item Number: 856391
+Description: B.U.RING-PTFE (ID-307.56XW-6XT-2.75)
+Balance Qty: 16
+Stock Qty: 0
+Shortage: 16
+----------------------------------------
+Item Number: 0266
+Description: AJB - H,O-RING,ID26.6,C/S2.68,SILICONE Red 70,-,-
+Balance Qty: 14
+Stock Qty: 0
+Shortage: 14
+----------------------------------------
+Item Number: 6000838
+Description: Circlip Type B Din 472x35x1.5
+Balance Qty: 14
+Stock Qty: 0
+Shortage: 14
+----------------------------------------
+Item Number: 5136
+Description: 40144 - 51,36",U-CUP SEAL,-,NBR 70,FNSH,-,-,-
+Balance Qty: 12
+Stock Qty: 0
+Shortage: 12
+----------------------------------------
+Item Number: 4918
+Description: EW - NBR 90 O Ring 346.67x7
+Balance Qty: 11
+Stock Qty: 0
+Shortage: 11
+----------------------------------------
+Item Number: 5602
+Description: 40560 - 56,2",U-CUP SEAL,-,NBR 70,FNSH,-,-,-
+Balance Qty: 11
+Stock Qty: 0
+Shortage: 11
+----------------------------------------
+Item Number: 5357
+Description: 5357-Neoprene 70 X Ring 329.57x6.99
+Balance Qty: 10
+Stock Qty: 0
+Shortage: 10
+----------------------------------------
+Item Number: 5126
+Description: 40145 - 51,26",U-CUP SEAL,-,NBR 70,FNSH,-,-,-
+Balance Qty: 10
+Stock Qty: 0
+Shortage: 10
+----------------------------------------
+Item Number: 262373
+Description: AGA - O Ring Viton 70 47.3x2.62
+Balance Qty: 10
+Stock Qty: 0
+Shortage: 10
+----------------------------------------
+Item Number: 80986
+Description: 80986 - NBR 70 Rubber Bellow 95x180/210x310
+Balance Qty: 10
+Stock Qty: 0
+Shortage: 10
+----------------------------------------
+Item Number: 0131
+Description: AALJ - H,O-RING,ID13.10,C/S2.62,NBR 70,-,-
+Balance Qty: 10
+Stock Qty: 0
+Shortage: 10
+----------------------------------------
+Item Number: 12070658
+Description: AYE-NBR 70 O Ring 190.09x3.53
+Balance Qty: 8
+Stock Qty: 0
+Shortage: 8
+----------------------------------------
+Item Number: 12053620
+Description: ABGT - NBR 90 O Ring 278.77x5
+Balance Qty: 6
+Stock Qty: 0
+Shortage: 6
+----------------------------------------
+Item Number: 85260
+Description: 85260-NBR 70/75 Rubber Bellow 165/190x173/198x320MM
+Balance Qty: 6
+Stock Qty: 0
+Shortage: 6
+----------------------------------------
+Item Number: 6000744
+Description: AVS - Viton 70 O Ring 75.87x2.62
+Balance Qty: 5
+Stock Qty: 0
+Shortage: 5
+----------------------------------------
+Item Number: 81814
+Description: 81814-Silicone White 70 Rubber Bellow 114/167x118/171/255
+Balance Qty: 5
+Stock Qty: 0
+Shortage: 5
+----------------------------------------
+Item Number: 5601304
+Description: ABEX-NBR 80 O Ring 80x3.53
+Balance Qty: 4
+Stock Qty: 0
+Shortage: 4
+----------------------------------------
+Item Number: 0320
+Description: R-3 - H,O-RING,ID32,C/S3.5,VITON B 70,-,-
+Balance Qty: 4
+Stock Qty: 0
+Shortage: 4
+----------------------------------------
+Item Number: 5289041
+Description: 1565-NBR ADL 70 Rot Shaft Lip Seal 70x85x8
+Balance Qty: 3
+Stock Qty: 0
+Shortage: 3
+----------------------------------------
+Item Number: 371837
+Description: JM-NBR 80 O Ring 48x6
+Balance Qty: 3
+Stock Qty: 0
+Shortage: 3
+----------------------------------------
+Item Number: 40937
+Description: 40937 - NBR 90 U Seal 420x455x20mm
+Balance Qty: 3
+Stock Qty: 0
+Shortage: 3
+----------------------------------------
+Item Number: 11281
+Description: EW - Viton 70 O Ring 346.7X7
+Balance Qty: 2
+Stock Qty: 0
+Shortage: 2
+----------------------------------------
+Item Number: 0362
+Description: ACJJ - H,O-RING,ID 36.17,C/S2.62,HNBR AED-9016,
+Balance Qty: 2
+Stock Qty: 0
+Shortage: 2
+----------------------------------------
+Item Number: 0296
+Description: AVM-NBR 70 Vibration Damper 25x20 M6
+Balance Qty: 2
+Stock Qty: 0
+Shortage: 2
+----------------------------------------
+Item Number: 124201
+Description: ABKP-EPDM 70 O Ring 140x3
+Balance Qty: 2
+Stock Qty: 0
+Shortage: 2
+----------------------------------------
+Item Number: 40953
+Description: 40953-NBR 80 U Seal 374.74x403.74x16
+Balance Qty: 2
+Stock Qty: 0
+Shortage: 2
+----------------------------------------
+Item Number: 7747
+Description: 7747 - Silicone 70 Food Grade Extruded Profile 39X13X1150
+Balance Qty: 2
+Stock Qty: 0
+Shortage: 2
+----------------------------------------
+Item Number: 373006
+Description: O-54 EPDM 80 PEROXYD O RING 530X5
+Balance Qty: 2
+Stock Qty: 0
+Shortage: 2
+----------------------------------------
+Item Number: 5603761
+Description: 2922-NBR 70 Rot Shaft Lip Seak 45x72x8
+Balance Qty: 2
+Stock Qty: 0
+Shortage: 2
+----------------------------------------
+Item Number: 83387
+Description: 83387 - Silicon White 55 Oval Shape Ring 460X520X10
+Balance Qty: 2
+Stock Qty: 0
+Shortage: 2
+----------------------------------------
+Item Number: 5140
+Description: 51 BFW (WC),40",U-CUP SEAL,-,NBR 70,FNSH, V1
+Balance Qty: 2
+Stock Qty: 0
+Shortage: 2
+----------------------------------------
+Item Number: 00002493
+Description: Service for Silicone Coating on Roller
+Balance Qty: 1
+Stock Qty: 0
+Shortage: 1
+----------------------------------------
+Item Number: 70050
+Description: 70050-EPDM 65/70 Profile Cord 16/20X17.5/23X5980 Single Molded Joint
+Balance Qty: 1
+Stock Qty: 0
+Shortage: 1
+----------------------------------------
+Item Number: 370120
+Description: ACGL-NBR 80 O Ring 50x4
+Balance Qty: 1
+Stock Qty: 0
+Shortage: 1
+----------------------------------------
+Item Number: 304377
+Description: O-243 - O Ring 60x3.5 NBR 70
+Balance Qty: 1
+Stock Qty: 0
+Shortage: 1
+----------------------------------------
+Item Number: 372347
+Description: AAHC-NBR 80 O Ring 32x2.50
+Balance Qty: 1
+Stock Qty: 0
+Shortage: 1
+----------------------------------------
+Item Number: 370997
+Description: ABGD-NBR 80 O Ring 170X6
+Balance Qty: 1
+Stock Qty: 0
+Shortage: 1
+----------------------------------------
+Item Number: 25222340052
+Description: 82960 - 225 Dust Seal
+Balance Qty: 1
+Stock Qty: 0
+Shortage: 1
+----------------------------------------
+Item Number: 25222340053
+Description: 2393 - 225 JT Sliding Seal
+Balance Qty: 1
+Stock Qty: 0
+Shortage: 1
+----------------------------------------
+Item Number: 370145
+Description: ABGS-NBR 80 O Ring 195x4
+Balance Qty: 1
+Stock Qty: 0
+Shortage: 1
+----------------------------------------
+Item Number: 25222330019
+Description: 83816/83374 - 590 HD Rubber Housing
+Balance Qty: 1
+Stock Qty: 0
+Shortage: 1
+----------------------------------------
+Item Number: 96150
+Description: ACM BLACK 50
+Balance Qty: 0
+Stock Qty: 0
+Shortage: 0
+----------------------------------------
+Item Number: 6180
+Description: HNBR 80
+Balance Qty: 0
+Stock Qty: 0
+Shortage: 0
+----------------------------------------

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Planning Dashboard | Planning Pending Qty Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container-main { max-width: 1600px; margin: 0 auto; }
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .upload-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .upload-box {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        .upload-box:hover {
+            border-color: #764ba2;
+            background: #f0f0ff;
+            transform: translateY(-3px);
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .metric-value { font-size: 2rem; font-weight: bold; }
+        .metric-label { font-size: 0.9rem; opacity: 0.9; }
+        .results-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            display: none;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .table-responsive {
+            max-height: 550px;
+            overflow: auto;
+            font-size: 0.85rem;
+        }
+        .table thead th {
+            background: #2a5298;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        .pending-badge {
+            background: #dc3545;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .sufficient-badge {
+            background: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .btn-calculate {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 40px;
+            font-weight: bold;
+            margin-top: 20px;
+            color: white;
+        }
+        .btn-calculate:hover { transform: translateY(-2px); }
+        .file-status {
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        .status-success { color: #28a745; font-weight: bold; }
+        .spinner {
+            display: none;
+            text-align: center;
+            padding: 50px;
+        }
+        .nav-tabs .nav-link {
+            color: #2a5298;
+            font-weight: bold;
+        }
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+        .search-box {
+            margin-bottom: 20px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 1rem;
+        }
+        .filter-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .info-badge {
+            background: #17a2b8;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+        }
+        .debug-info {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-main">
+        <div class="header">
+            <h1><i class="fas fa-industry"></i> Production Planning Dashboard</h1>
+            <p class="text-muted"><strong>Formula:</strong> Planning Pending Qty = Balance Qty - (FG Stock + SFG Stock)</p>
+            <p class="text-muted"><i class="fas fa-tag"></i> FG/SFG identified by <strong>ItemSubGroup</strong> column in Stock Report</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="upload-box" onclick="document.getElementById('bom_file').click()">
+                        <i class="fas fa-file-excel fa-3x" style="color: #28a745;"></i>
+                        <h5 class="mt-2">1. BOM Details List</h5>
+                        <p>Contains FG to SFG mapping</p>
+                        <input type="file" id="bom_file" accept=".xlsx,.xls,.csv" style="display:none">
+                        <div id="bom_status" class="file-status"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="upload-box" onclick="document.getElementById('pending_file').click()">
+                        <i class="fas fa-file-excel fa-3x" style="color: #ffc107;"></i>
+                        <h5 class="mt-2">2. Pending Qty ERP</h5>
+                        <p>Contains Customer Orders with Balance Qty</p>
+                        <input type="file" id="pending_file" accept=".xlsx,.xls,.csv" style="display:none">
+                        <div id="pending_status" class="file-status"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="upload-box" onclick="document.getElementById('stock_file').click()">
+                        <i class="fas fa-file-excel fa-3x" style="color: #17a2b8;"></i>
+                        <h5 class="mt-2">3. Stock Report FG+WIP</h5>
+                        <p>Has ItemSubGroup column (FG or SFG/WIP)</p>
+                        <input type="file" id="stock_file" accept=".xlsx,.xls,.csv" style="display:none">
+                        <div id="stock_status" class="file-status"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center">
+                <button class="btn btn-calculate btn-lg" onclick="processFiles()">
+                    <i class="fas fa-calculator"></i> Calculate Planning Pending
+                </button>
+            </div>
+        </div>
+
+        <div id="spinner" class="spinner">
+            <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;"></div>
+            <h5 class="mt-3 text-white">Processing data and matching records...</h5>
+            <p class="text-white">Using ItemSubGroup to identify FG vs SFG stock...</p>
+        </div>
+
+        <div id="results" class="results-card">
+            <div class="row" id="metrics"></div>
+            
+            <div class="filter-section">
+                <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by Customer, Item Code, Item Description, SFG Code..." onkeyup="filterTables()">
+            </div>
+            
+            <ul class="nav nav-tabs mt-4" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pending_tab">
+                        <i class="fas fa-clock"></i> Planning Pending Items (<span id="pendingCount">0</span>)
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#all_tab">
+                        <i class="fas fa-list"></i> All Items (<span id="allCount">0</span>)
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#debug_tab">
+                        <i class="fas fa-bug"></i> Debug Info
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#chart_tab">
+                        <i class="fas fa-chart-bar"></i> Visualizations
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-3">
+                <div class="tab-pane active" id="pending_tab">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="pending_table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th><th>SO Date</th><th>PO No</th><th>Item Code</th><th>Item Description</th>
+                                    <th>SFG Item Code</th><th>SFG Description</th>
+                                    <th>Balance Qty</th><th>FG Stock</th><th>SFG Stock</th><th>Total Stock</th><th>Planning Pending</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane" id="all_tab">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="all_table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th><th>SO Date</th><th>PO No</th><th>Item Code</th><th>Item Description</th>
+                                    <th>SFG Code</th><th>SFG Description</th>
+                                    <th>SO Qty</th><th>Balance Qty</th><th>FG Stock</th><th>SFG Stock</th><th>Total Stock</th><th>Planning Pending</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane" id="debug_tab">
+                    <div class="debug-info" id="debugInfo"></div>
+                </div>
+                <div class="tab-pane" id="chart_tab">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div id="bar_chart"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="pie_chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button class="btn btn-success btn-lg" onclick="downloadResults()">
+                    <i class="fas fa-download"></i> Download Excel Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let bomData = [], pendingData = [], stockData = [];
+        let resultData = [];
+        let fgStockMap = {};      // FG stock by ItemNo
+        let sfgStockMap = {};     // SFG stock by ItemCode
+        let bomMapping = {};       // FG ItemNo -> SFG info
+
+        // File upload handlers
+        document.getElementById('bom_file').addEventListener('change', function(e) {
+            const file = this.files[0];
+            if(file) {
+                document.getElementById('bom_status').innerHTML = `<i class="fas fa-check-circle status-success"></i> ${file.name}`;
+                readFile(file, 'bom');
+            }
+        });
+        
+        document.getElementById('pending_file').addEventListener('change', function(e) {
+            const file = this.files[0];
+            if(file) {
+                document.getElementById('pending_status').innerHTML = `<i class="fas fa-check-circle status-success"></i> ${file.name}`;
+                readFile(file, 'pending');
+            }
+        });
+        
+        document.getElementById('stock_file').addEventListener('change', function(e) {
+            const file = this.files[0];
+            if(file) {
+                document.getElementById('stock_status').innerHTML = `<i class="fas fa-check-circle status-success"></i> ${file.name}`;
+                readFile(file, 'stock');
+            }
+        });
+
+        function readFile(file, type) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(sheet);
+                
+                if(type === 'bom') {
+                    bomData = jsonData;
+                    console.log('✅ BOM loaded:', bomData.length, 'records');
+                }
+                else if(type === 'pending') {
+                    pendingData = jsonData;
+                    console.log('✅ Pending Orders loaded:', pendingData.length, 'records');
+                }
+                else if(type === 'stock') {
+                    stockData = jsonData;
+                    console.log('✅ Stock Report loaded:', stockData.length, 'records');
+                    // Log unique ItemSubGroup values
+                    const subGroups = [...new Set(stockData.map(row => row.ItemSubGroup))];
+                    console.log('📊 ItemSubGroup values found:', subGroups);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function processFiles() {
+            if(bomData.length === 0 || pendingData.length === 0 || stockData.length === 0) {
+                alert(`Please upload all 3 files first!
+                
+📊 Current Status:
+• BOM: ${bomData.length} records
+• Pending Orders: ${pendingData.length} records  
+• Stock Report: ${stockData.length} records`);
+                return;
+            }
+
+            document.getElementById('spinner').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+
+            setTimeout(() => {
+                try {
+                    // ========== STEP 1: Build BOM Mapping (FG to SFG) ==========
+                    bomMapping = {};
+                    bomData.forEach(item => {
+                        // Filter BOM items (PartType = 'BOM' and BOM_ItemCode exists)
+                        if(item.PartType === 'BOM' && item.BOM_ItemCode && item.BOM_ItemCode.toString().trim() !== '') {
+                            const fgItemNo = item.ItemNo;
+                            if (!bomMapping[fgItemNo]) {
+                                bomMapping[fgItemNo] = {
+                                    sfgCode: item.BOM_ItemCode,
+                                    sfgDesc: item.BOM_ItemDesc || '',
+                                    qtyPerUnit: item.BOMItem_BOMQty || 1
+                                };
+                            }
+                        }
+                    });
+                    console.log('📋 BOM Mapping:', bomMapping);
+
+                    // ========== STEP 2: Calculate FG Stock from Stock Report using ItemSubGroup ==========
+                    // FG items have ItemSubGroup = 'FG'
+                    fgStockMap = {};
+                    stockData.forEach(row => {
+                        const itemSubGroup = row.ItemSubGroup;
+                        const closingStock = parseFloat(row['Closing Stock']) || 0;
+                        
+                        if(itemSubGroup === 'FG' || itemSubGroup === 'FG ' || itemSubGroup === 'FG_STORE') {
+                            const itemNo = row.ItemNo;
+                            if(itemNo && itemNo.toString().trim() !== '') {
+                                fgStockMap[itemNo] = (fgStockMap[itemNo] || 0) + closingStock;
+                            }
+                        }
+                    });
+                    console.log('📦 FG Stock calculated for', Object.keys(fgStockMap).length, 'items');
+                    console.log('FG Stock Map:', fgStockMap);
+
+                    // ========== STEP 3: Calculate SFG Stock from Stock Report using ItemSubGroup ==========
+                    // SFG/WIP items have ItemSubGroup = 'SFG' or 'WIP' or not 'FG'
+                    sfgStockMap = {};
+                    stockData.forEach(row => {
+                        const itemSubGroup = row.ItemSubGroup;
+                        const closingStock = parseFloat(row['Closing Stock']) || 0;
+                        const itemCode = row.ItemCode;
+                        
+                        // SFG items: either ItemSubGroup is 'SFG' OR 'WIP' OR not 'FG'
+                        if(itemSubGroup !== 'FG' && itemSubGroup !== 'FG ' && itemSubGroup !== 'FG_STORE') {
+                            if(itemCode && itemCode.toString().trim() !== '' && itemCode.toString().trim() !== '.') {
+                                sfgStockMap[itemCode] = (sfgStockMap[itemCode] || 0) + closingStock;
+                            }
+                        }
+                    });
+                    console.log('🔧 SFG Stock calculated for', Object.keys(sfgStockMap).length, 'items');
+                    console.log('SFG Stock Map (sample):', Object.entries(sfgStockMap).slice(0, 10));
+
+                    // ========== STEP 4: Process Pending Orders ==========
+                    resultData = [];
+                    
+                    pendingData.forEach(order => {
+                        const itemNo = order.ItemNo;
+                        const balQty = parseFloat(order.BalQty) || 0;
+                        const soQty = parseFloat(order.SOQty) || 0;
+                        
+                        // Get SFG mapping for this FG item
+                        const bomInfo = bomMapping[itemNo] || {sfgCode: '', sfgDesc: '', qtyPerUnit: 1};
+                        
+                        // Get FG Stock
+                        const fgStock = fgStockMap[itemNo] || 0;
+                        
+                        // Get SFG Stock using the SFG code from BOM
+                        let sfgStock = 0;
+                        if(bomInfo.sfgCode && sfgStockMap[bomInfo.sfgCode]) {
+                            sfgStock = sfgStockMap[bomInfo.sfgCode];
+                        } else if(bomInfo.sfgCode) {
+                            console.log(`⚠️ SFG not found in stock: ${bomInfo.sfgCode} for FG ${itemNo}`);
+                        }
+                        
+                        // Calculate total stock available
+                        const totalStock = fgStock + sfgStock;
+                        
+                        // Calculate pending for planning = Balance Qty - Total Stock
+                        const pendingQty = Math.max(0, balQty - totalStock);
+                        
+                        resultData.push({
+                            cust_name: order.CustName || '',
+                            so_date: order.SoDate ? new Date(order.SoDate).toLocaleDateString() : order.SoDate || '',
+                            cust_po_no: order.CustPONo || '',
+                            item_no: itemNo || '',
+                            item_desc: order.ItemDesc || '',
+                            sfg_item_code: bomInfo.sfgCode,
+                            sfg_item_desc: bomInfo.sfgDesc,
+                            so_qty: soQty,
+                            bal_qty: balQty,
+                            fg_stock: fgStock,
+                            sfg_stock: sfgStock,
+                            total_stock: totalStock,
+                            pending_qty: pendingQty
+                        });
+                    });
+                    
+                    console.log(`📊 Results calculated: ${resultData.length} orders`);
+                    const totalPending = resultData.reduce((sum, r) => sum + r.pending_qty, 0);
+                    console.log(`📈 Total Pending Quantity: ${totalPending}`);
+                    
+                    // Debug info
+                    const debugInfo = {
+                        bomMappingCount: Object.keys(bomMapping).length,
+                        fgStockCount: Object.keys(fgStockMap).length,
+                        sfgStockCount: Object.keys(sfgStockMap).length,
+                        bomMapping: bomMapping,
+                        fgStockSample: Object.entries(fgStockMap).slice(0, 10),
+                        sfgStockSample: Object.entries(sfgStockMap).slice(0, 10),
+                        pendingOrdersCount: pendingData.length,
+                        resultsCount: resultData.length
+                    };
+                    
+                    displayResults(resultData, debugInfo);
+                    
+                    document.getElementById('spinner').style.display = 'none';
+                    document.getElementById('results').style.display = 'block';
+                    
+                } catch(error) {
+                    document.getElementById('spinner').style.display = 'none';
+                    alert('Error processing files: ' + error.message);
+                    console.error(error);
+                }
+            }, 100);
+        }
+
+        function displayResults(data, debugInfo) {
+            const totalOrders = data.length;
+            const totalPending = data.reduce((sum, row) => sum + row.pending_qty, 0);
+            const totalBalance = data.reduce((sum, row) => sum + row.bal_qty, 0);
+            const totalStock = data.reduce((sum, row) => sum + row.total_stock, 0);
+            const pendingItemsCount = data.filter(row => row.pending_qty > 0).length;
+            
+            document.getElementById('metrics').innerHTML = `
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <i class="fas fa-shopping-cart fa-2x"></i>
+                        <div class="metric-value">${totalOrders}</div>
+                        <div class="metric-label">Total Orders</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <i class="fas fa-clock fa-2x"></i>
+                        <div class="metric-value">${totalPending.toLocaleString()}</div>
+                        <div class="metric-label">Planning Pending Qty</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <i class="fas fa-box fa-2x"></i>
+                        <div class="metric-value">${totalBalance.toLocaleString()}</div>
+                        <div class="metric-label">Total Balance Qty</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <i class="fas fa-warehouse fa-2x"></i>
+                        <div class="metric-value">${totalStock.toLocaleString()}</div>
+                        <div class="metric-label">Total Stock Available</div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('pendingCount').innerText = pendingItemsCount;
+            document.getElementById('allCount').innerText = totalOrders;
+            
+            // Debug info
+            document.getElementById('debugInfo').innerHTML = `
+                <h5>📊 Data Processing Debug Info</h5>
+                <hr>
+                <p><strong>BOM Mapping:</strong> ${debugInfo.bomMappingCount} FG items mapped to SFG</p>
+                <pre>${JSON.stringify(debugInfo.bomMapping, null, 2)}</pre>
+                <p><strong>FG Stock Items:</strong> ${debugInfo.fgStockCount} items</p>
+                <pre>${JSON.stringify(debugInfo.fgStockSample, null, 2)}</pre>
+                <p><strong>SFG Stock Items:</strong> ${debugInfo.sfgStockCount} items</p>
+                <pre>${JSON.stringify(debugInfo.sfgStockSample, null, 2)}</pre>
+            `;
+            
+            // Store for search filter
+            window.allData = data;
+            renderTables(data);
+            
+            // Charts
+            const pendingItems = data.filter(row => row.pending_qty > 0).sort((a,b) => b.pending_qty - a.pending_qty).slice(0, 10);
+            
+            if(pendingItems.length > 0) {
+                Plotly.newPlot('bar_chart', [{
+                    x: pendingItems.map(row => row.item_desc.substring(0, 35)),
+                    y: pendingItems.map(row => row.pending_qty),
+                    type: 'bar',
+                    marker: {color: '#dc3545'},
+                    text: pendingItems.map(row => row.pending_qty),
+                    textposition: 'auto'
+                }], {
+                    title: 'Top 10 Items - Planning Pending',
+                    xaxis: {tickangle: -45, title: 'Item Description'},
+                    yaxis: {title: 'Pending Quantity'},
+                    height: 400
+                });
+            }
+            
+            Plotly.newPlot('pie_chart', [{
+                values: [totalPending, Math.max(0, totalBalance - totalPending)],
+                labels: ['Need Planning (' + totalPending.toLocaleString() + ')', 'Sufficient Stock (' + (totalBalance - totalPending).toLocaleString() + ')'],
+                type: 'pie',
+                marker: {colors: ['#dc3545', '#28a745']},
+                textinfo: 'label+percent',
+                hole: 0.4
+            }], {
+                title: 'Overall Planning Status',
+                height: 400
+            });
+        }
+        
+        function renderTables(data) {
+            // Pending table (only items with pending_qty > 0)
+            let pendingHtml = '';
+            const pendingItems = data.filter(row => row.pending_qty > 0);
+            
+            pendingItems.forEach(row => {
+                pendingHtml += `<tr>
+                    <td>${row.cust_name}</td><td>${row.so_date}</td><td>${row.cust_po_no}</td>
+                    <td><strong>${row.item_no}</strong></td>
+                    <td>${row.item_desc.substring(0, 50)}</td>
+                    <td>${row.sfg_item_code || '-'}</td>
+                    <td>${row.sfg_item_desc.substring(0, 40)}</td>
+                    <td>${row.bal_qty.toLocaleString()}</td>
+                    <td>${row.fg_stock.toLocaleString()}</td>
+                    <td>${row.sfg_stock.toLocaleString()}</td>
+                    <td>${row.total_stock.toLocaleString()}</td>
+                    <td><span class="pending-badge">${row.pending_qty.toLocaleString()}</span></td>
+                </tr>`;
+            });
+            document.querySelector('#pending_table tbody').innerHTML = pendingHtml || '<tr><td colspan="12" class="text-center">✅ No pending items found!</td></tr>';
+            
+            // All items table
+            let allHtml = '';
+            data.forEach(row => {
+                const pendingClass = row.pending_qty > 0 ? 'pending-badge' : 'sufficient-badge';
+                allHtml += `<tr>
+                    <td>${row.cust_name}</td><td>${row.so_date}</td><td>${row.cust_po_no}</td>
+                    <td>${row.item_no}</td>
+                    <td>${row.item_desc.substring(0, 50)}</td>
+                    <td>${row.sfg_item_code || '-'}</td>
+                    <td>${row.sfg_item_desc.substring(0, 40)}</td>
+                    <td>${row.so_qty.toLocaleString()}</td>
+                    <td>${row.bal_qty.toLocaleString()}</td>
+                    <td>${row.fg_stock.toLocaleString()}</td>
+                    <td>${row.sfg_stock.toLocaleString()}</td>
+                    <td>${row.total_stock.toLocaleString()}</td>
+                    <td><span class="${pendingClass}">${row.pending_qty.toLocaleString()}</span></td>
+                </tr>`;
+            });
+            document.querySelector('#all_table tbody').innerHTML = allHtml;
+        }
+        
+        function filterTables() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if(!window.allData) return;
+            
+            const filtered = window.allData.filter(row => {
+                return row.cust_name.toLowerCase().includes(searchTerm) ||
+                       row.item_no.toLowerCase().includes(searchTerm) ||
+                       row.item_desc.toLowerCase().includes(searchTerm) ||
+                       (row.sfg_item_code && row.sfg_item_code.toLowerCase().includes(searchTerm)) ||
+                       (row.cust_po_no && row.cust_po_no.toLowerCase().includes(searchTerm));
+            });
+            
+            renderTables(filtered);
+            document.getElementById('pendingCount').innerText = filtered.filter(r => r.pending_qty > 0).length;
+            document.getElementById('allCount').innerText = filtered.length;
+        }
+
+        function downloadResults() {
+            if(!resultData || resultData.length === 0) {
+                alert('No data to download. Please calculate first.');
+                return;
+            }
+            
+            // Prepare data for Excel
+            const exportData = resultData.map(row => ({
+                'Customer Name': row.cust_name,
+                'SO Date': row.so_date,
+                'PO Number': row.cust_po_no,
+                'Item No': row.item_no,
+                'Item Description': row.item_desc,
+                'SFG Item Code': row.sfg_item_code,
+                'SFG Description': row.sfg_item_desc,
+                'SO Qty': row.so_qty,
+                'Balance Qty': row.bal_qty,
+                'FG Stock': row.fg_stock,
+                'SFG Stock': row.sfg_stock,
+                'Total Stock': row.total_stock,
+                'Planning Pending Qty': row.pending_qty,
+                'Status': row.pending_qty > 0 ? 'Need Planning' : 'Sufficient Stock'
+            }));
+            
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Planning_Pending_Qty');
+            XLSX.writeFile(wb, `Planning_Pending_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
+        }
+    </script>
+</body>
+</html>

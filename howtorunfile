@@ -1,0 +1,16 @@
+# Create and enter directory
+mkdir production-dashboard
+cd production-dashboard
+
+# Create virtual environment
+python -m venv venv
+venv\Scripts\activate
+
+#libraries
+pip install dash dash-core-components dash-html-components dash-table plotly pandas numpy openpyxl xlrd reportlab Pillow matplotlib kaleido seaborn wordcloud xlwt xlsxwriter pyexcel pyexcel-xlsx gunicorn waitress python-dateutil pytz requests sqlalchemy imageio opencv-python scipy scikit-learn yagmail colorlog rich python-dotenv pyyaml schedule apscheduler jinja2 flask flask-cors
+
+# Verify installation
+python -c "import dash; print('Dash version:', dash.__version__)"
+
+# Run dashboard
+python dashboard.py
