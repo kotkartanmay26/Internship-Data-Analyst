@@ -3,7 +3,14 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
 from datetime import datetime, timedelta
+import io
+import base64
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
 
 st.set_page_config(
     page_title="Puja Fluid Seals - Enterprise Analytics",
@@ -13,8 +20,8 @@ st.set_page_config(
 )
 
 st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+&lt;style&gt;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap');
 
 * {
     font-family: 'Inter', sans-serif !important;
@@ -75,7 +82,7 @@ st.markdown("""
 }
 
 .kpi-trend {
-    font-size: 14px !important;
+    font-size:14px !important;
     font-weight:700 !important;
 }
 
@@ -96,15 +103,15 @@ st.markdown("""
     letter-spacing: -0.3px;
 }
 
-div.stButton > button {
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    padding: 12px 20px !important;
-    border-radius: 12px !important;
+div.stButton &gt; button {
+    font-size:14px !important;
+    font-weight:700 !important;
+    padding:12px 20px !important;
+    border-radius:12px !important;
     transition: all 0.25s ease !important;
     white-space: nowrap !important;
-    width: 100% !important;
-    min-width: 140px !important;
+    width:100% !important;
+    min-width:140px !important;
 }
 
 [data-testid="stDataFrame"] {
@@ -163,55 +170,56 @@ div.stButton > button {
     color:#0A2A66;
 }
 
-/* Responsive adjustments */
 @media (max-width: 1400px) {
     [data-testid="block-container"] {
-        padding: 20px 24px !important;
+        padding:20px 24px !important;
     }
-    
-    .chart-card {
-        padding:28px;
-    }
+    .chart-card { padding:28px; }
 }
 
 @media (max-width: 1024px) {
     [data-testid="block-container"] {
-        padding: 16px 20px !important;
+        padding:16px 20px !important;
     }
 }
-</style>
+&lt;/style&gt;
 """, unsafe_allow_html=True)
 
+# Session state initialization
 if 'selected_page' not in st.session_state:
     st.session_state.selected_page = 'home'
+if 'uploaded_df' not in st.session_state:
+    st.session_state.uploaded_df = None
+if 'processed_df' not in st.session_state:
+    st.session_state.processed_df = None
 
-@st.cache_data
+# Mock data function (default if no file uploaded)
 def load_mock_data():
     dates = pd.date_range(start='2026-05-24', end='2026-06-23', freq='D')
-    attendance = pd.DataFrame({
+    data = {
         "Date": dates,
-        "Present": np.random.randint(190, 215, len(dates)),
-        "Absent": np.random.randint(6,31, len(dates))
-    })
-    
-    departments = pd.DataFrame({
-        "Department": ["Production","Quality","Maintenance","Toolroom","HR","Purchase","Others"],
-        "Count": [85,35,30,25,20,15,11]
-    })
-    
-    skills = pd.DataFrame({
-        "Skill Category": ["Technical Skills","Quality Skills","Safety Skills","Operator Skills","Maintenance Skills"],
-        "Skilled": [150,142,160,135,120],
-        "Average Level": [78,72,85,68,60],
-        "Training Required": [18,16,10,20,22]
-    })
-    return attendance, departments, skills
+        "EmployeeID": [f"E{i:03d}" for i in range(1, len(dates)+1)],
+        "Name": [f"Employee {i}" for i in range(1, len(dates)+1)],
+        "Department": np.random.choice(["Production", "Quality", "Maintenance", "Toolroom", "HR", "Purchase"], size=len(dates)),
+        "Present": np.random.randint(180, 220, len(dates)),
+        "Absent": np.random.randint(5, 30, len(dates)),
+        "Production": np.random.randint(1000, 5000, len(dates)),
+        "Efficiency": np.random.uniform(75, 95, len(dates)),
+        "SkillLevel": np.random.randint(50, 100, len(dates)),
+        "Stock": np.random.randint(500, 2000, len(dates)),
+    }
+    return pd.DataFrame(data)
 
-attendance_df, departments_df, skills_df = load_mock_data()
+# Load default data if nothing uploaded
+if st.session_state.processed_df is None:
+    st.session_state.processed_df = load_mock_data()
+    st.session_state.uploaded_df = st.session_state.processed_df.copy()
+
+df = st.session_state.processed_df
 
 with st.sidebar:
     st.markdown("""
-    <div style="
+    &lt;div style="
         padding:28px 24px;
         display:flex;
         align-items:center;
@@ -219,33 +227,30 @@ with st.sidebar:
         border-bottom:1px solid rgba(255,255,255,0.1);
         margin:-28px -24px 28px -24px;
         background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-    ">
-        <div class="sidebar-logo">🏭</div>
-        <div>
-            <h2 style="margin:0; font-size:20px; font-weight:800; color:white;">Puja Fluid Seals</h2>
-            <p style="margin:8px 0 0; font-size:14px; color:#94A3B8; font-weight:600;">Pvt. Ltd.</p>
-        </div>
-    </div>
+    "&gt;
+        &lt;div class="sidebar-logo"&gt;🏭&lt;/div&gt;
+        &lt;div&gt;
+            &lt;h2 style="margin:0; font-size:20px; font-weight:800; color:white;"&gt;Puja Fluid Seals&lt;/h2&gt;
+            &lt;p style="margin:8px 0 0; font-size:14px; color:#94A3B8; font-weight:600;"&gt;Pvt. Ltd.&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
     """, unsafe_allow_html=True)
     
     st.markdown("""
-    <div style="padding:0 12px 16px;">
-        <p style="color:#64748B; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; margin:0;">Main Menu</p>
-    </div>
+    &lt;div style="padding:0 12px 16px;"&gt;
+        &lt;p style="color:#64748B; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; margin:0;"&gt;Main Menu&lt;/p&gt;
+    &lt;/div&gt;
     """, unsafe_allow_html=True)
     
     nav_items = [
         ("home", "🏠", "Dashboard Overview"),
         ("employees", "👥", "Employee Dashboard"),
-        ("efficiency", "📈", "Employee Efficiency"),
+        ("attendance", "📊", "Attendance Dashboard"),
+        ("production", "🏭", "Production Dashboard"),
         ("skills", "🎯", "Skill Matrix"),
         ("stock", "📦", "Stock Analysis"),
-        ("production", "🏭", "Production Planning"),
-        ("toolroom", "🔧", "Toolroom Efficiency"),
-        ("profit", "💰", "Profit Analyzer"),
-        ("training", "📚", "Training Dashboard"),
-        ("departments", "🏢", "Department Analytics"),
-        ("reports", "📊", "Production Reports")
+        ("toolroom", "🔧", "Toolroom Dashboard"),
+        ("profit", "💰", "Profit Analysis"),
     ]
     
     for page_id, icon, text in nav_items:
@@ -260,116 +265,161 @@ with st.sidebar:
             st.rerun()
     
     st.markdown("""
-    <div style="padding:24px 12px 0; border-top:1px solid rgba(255,255,255,0.1); margin-top:28px;">
-        <p style="color:#64748B; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; margin:0 0 16px 0;">System</p>
-        <div style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.35); border-radius:14px; margin-bottom:20px;">
-            <span style="width:14px; height:14px; border-radius:50%; background:#22C55E; box-shadow:0 0 0 6px rgba(34,197,94,0.25);"></span>
-            <span style="font-size:15px; color:#86EFAC; font-weight:800;">All Systems Operational</span>
-        </div>
-        <div style="
-            background:linear-gradient(135deg, rgba(37,99,235,0.15) 0%, rgba(10,42,102,0.12) 100%);
-            border:1px solid rgba(37,99,235,0.3);
-            border-radius:18px;
-            padding:24px;
-            margin-bottom:20px;
-        ">
-            <p style="font-size:17px; font-weight:800; color:#60A5FA; margin:0 0 12px;">🚀 Boost Productivity</p>
-            <p style="font-size:14px; color:rgba(255,255,255,0.8); line-height:1.7; margin:0 0 18px;">Track performance and make data-driven decisions effectively.</p>
-        </div>
-        <div style="
-            padding-top:20px;
-            border-top:1px solid rgba(255,255,255,0.1);
-            color:rgba(255,255,255,0.7);
-            font-size:14px;
-            font-weight:600;
-        ">
-            <p style="margin:0 0 6px;">© 2024 Puja Fluid Seals Pvt. Ltd.</p>
-            <p style="margin:0; opacity:0.8;">All rights reserved.</p>
-        </div>
-    </div>
+    &lt;div style="padding:24px 12px 0; border-top:1px solid rgba(255,255,255,0.1); margin-top:28px;"&gt;
+        &lt;p style="color:#64748B; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; margin:0 0 16px 0;"&gt;System&lt;/p&gt;
+        &lt;div style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.35); border-radius:14px; margin-bottom:20px;"&gt;
+            &lt;span style="width:14px; height:14px; border-radius:50%; background:#22C55E; box-shadow:0 0 0 6px rgba(34,197,94,0.25);"&gt;&lt;/span&gt;
+            &lt;span style="font-size:15px; color:#86EFAC; font-weight:800;"&gt;All Systems Operational&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div style="padding-top:20px; border-top:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); font-size:14px; font-weight:600;"&gt;
+            &lt;p style="margin:0 0 6px;"&gt;© 2024 Puja Fluid Seals Pvt. Ltd.&lt;/p&gt;
+            &lt;p style="margin:0; opacity:0.8;"&gt;All rights reserved.&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
     """, unsafe_allow_html=True)
 
-header_col1, header_col2 = st.columns([1.2, 3])
+header_col1, header_col2 = st.columns([1.2,3])
 with header_col1:
     st.markdown("""
-    <div>
-        <h1 style="margin:0; font-size: clamp(30px,3.5vw,42px); font-weight:900; color:#0A2A66; letter-spacing:-0.5px;">Dashboard Overview</h1>
-        <p style="margin:10px 0 0; font-size:17px; color:#64748B; font-weight:600;">Home • Overview</p>
-    </div>
+    &lt;div&gt;
+        &lt;h1 style="margin:0; font-size: clamp(30px,3.5vw,42px); font-weight:900; color:#0A2A66; letter-spacing:-0.5px;"&gt;Dashboard Overview&lt;/h1&gt;
+        &lt;p style="margin:10px 0 0; font-size:17px; color:#64748B; font-weight:600;"&gt;Home • Overview&lt;/p&gt;
+    &lt;/div&gt;
     """, unsafe_allow_html=True)
 
 with header_col2:
-    search_col, date_col, refresh_col, download_col, export_col, notif_col, profile_col = st.columns([2,1.5,1,1,1,0.8,1])
+    search_col, upload_col, refresh_col, download_col, export_col, notif_col, profile_col = st.columns([1.8,1.2,1,1,1,0.8,1])
     
     with search_col:
-        st.text_input(
+        search_query = st.text_input(
             "🔍 Search employees, departments, skills, reports...",
-            placeholder="🔍 Search employees, departments, skills, reports...",
+            placeholder="🔍 Search...",
             key="global_search",
             label_visibility="collapsed"
         )
     
-    with date_col:
-        default_start = datetime.now() - timedelta(days=30)
-        default_end = datetime.now()
-        st.date_input("📅 Date Range", [default_start, default_end], key="date_range", label_visibility="collapsed")
+    with upload_col:
+        uploaded_file = st.file_uploader(
+            "📤 Upload", 
+            type=['xlsx', 'csv', 'xls'],
+            key="file_upload",
+            label_visibility="collapsed"
+        )
+        if uploaded_file is not None:
+            try:
+                if uploaded_file.name.endswith('.csv'):
+                    new_df = pd.read_csv(uploaded_file)
+                else:
+                    new_df = pd.read_excel(uploaded_file)
+                st.session_state.uploaded_df = new_df
+                st.session_state.processed_df = new_df
+                st.success("✅ File uploaded and processed!")
+                df = new_df
+            except Exception as e:
+                st.error(f"⚠️ Error: {str(e)}")
     
     with refresh_col:
-        st.button("🔄 Refresh", key="refresh_header", use_container_width=True)
+        if st.button("🔄 Refresh", key="refresh_header", use_container_width=True):
+            if st.session_state.uploaded_df is not None:
+                st.session_state.processed_df = st.session_state.uploaded_df.copy()
+            df = st.session_state.processed_df
+            st.success("✅ Data refreshed!")
+            st.rerun()
     
     with download_col:
-        st.button("⬇️ Download", key="download_header", use_container_width=True)
+        if st.button("⬇️ Download", key="download_header", use_container_width=True):
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                df.to_excel(writer, index=False, sheet_name='Report')
+            excel_data = output.getvalue()
+            st.download_button(
+                label="⬇️ Download Excel Report",
+                data=excel_data,
+                file_name=f"Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
     
     with export_col:
-        st.button("📤 Export", key="export_header", use_container_width=True)
+        if st.button("📤 Export PDF", key="export_header", use_container_width=True):
+            buffer = io.BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=letter)
+            story = []
+            styles = getSampleStyleSheet()
+            story.append(Paragraph("Puja Fluid Seals - Analytics Report", styles['Title']))
+            story.append(Spacer(1,12))
+            story.append(Paragraph(f"Generated: {datetime.now().strftime('%B %d, %Y at %H:%M')}", styles['Normal']))
+            story.append(Spacer(1,24))
+            
+            data = [df.columns.tolist()] + df.head(10).values.tolist()
+            table = Table(data)
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0A2A66')),
+                ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+                ('FONTSIZE', (0,0), (-1,0), 12),
+                ('BOTTOMPADDING', (0,0), (-1,0), 12),
+                ('BACKGROUND', (0,1), (-1,-1), colors.white),
+                ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#E5E7EB')),
+            ]))
+            story.append(table)
+            doc.build(story)
+            pdf_data = buffer.getvalue()
+            st.download_button(
+                label="📄 Download PDF Report",
+                data=pdf_data,
+                file_name=f"Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+                mime="application/pdf"
+            )
     
     with notif_col:
         st.button("🔔", key="notifications", use_container_width=True)
     
     with profile_col:
         st.markdown("""
-        <div style="
-            display:flex;
-            align-items:center;
-            gap:14px;
-            padding:12px 20px;
-            background:linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
-            border:1px solid #E2E8F0;
-            border-radius:16px;
-            justify-content:center;
-        ">
-            <div style="
-                width:48px;
-                height:48px;
-                border-radius:50%;
-                background:linear-gradient(135deg,#2563EB 0%,#0A2A66 100%);
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                color:white;
-                font-size:22px;
-                font-weight:900;
-            ">
-                A
-            </div>
-            <div style="text-align:left;">
-                <p style="margin:0; font-size:16px; font-weight:900; color:#0A2A66;">Admin</p>
-                <p style="margin:3px 0 0; font-size:13px; color:#64748B; font-weight:600;">Administrator</p>
-            </div>
-        </div>
+        &lt;div style="
+            display:flex; align-items:center; gap:14px;
+            padding:12px 20px; background:linear-gradient(135deg,#F8FAFC 0%,#F1F5F9 100%);
+            border:1px solid #E2E8F0; border-radius:16px; justify-content:center;
+        "&gt;
+            &lt;div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,#2563EB 0%,#0A2A66 100%);
+                display:flex; align-items:center; justify-content:center; color:white;
+                font-size:22px; font-weight:900;"&gt;A&lt;/div&gt;
+            &lt;div style="text-align:left;"&gt;
+                &lt;p style="margin:0; font-size:16px; font-weight:900; color:#0A2A66;"&gt;Admin&lt;/p&gt;
+                &lt;p style="margin:3px 0 0; font-size:13px; color:#64748B; font-weight:600;"&gt;Administrator&lt;/p&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
         """, unsafe_allow_html=True)
 
-st.markdown("<div style='height:36px;'></div>", unsafe_allow_html=True)
+st.markdown("&lt;div style='height:36px;'&gt;&lt;/div&gt;", unsafe_allow_html=True)
 
+if search_query:
+    df = df[df.apply(lambda row: row.astype(str).str.contains(search_query, case=False, na=False).any(), axis=1)]
+
+# Page rendering
 if st.session_state.selected_page == "home":
+    # KPI Cards
     kpi_col1, kpi_col2, kpi_col3, kpi_col4, kpi_col5, kpi_col6 = st.columns(6)
+    
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    total_records = len(df)
+    dept_count = df['Department'].nunique() if 'Department' in df.columns else 10
+    total_employees = df['EmployeeID'].nunique() if 'EmployeeID' in df.columns else total_records
+    
+    avg_efficiency = np.mean(df[numeric_cols].mean()) if numeric_cols else 85
+    avg_efficiency = round(avg_efficiency, 1) if avg_efficiency else 85
+    
+    total_production = df['Production'].sum() if 'Production' in df.columns else 500000
+    attendance_pct = (df['Present'].mean() / (df['Present'].mean() + df['Absent'].mean()) * 100) if ('Present' in df.columns and 'Absent' in df.columns) else 87.5
+    
     kpi_items = [
-        {"label":"Total Employees","value":"221","trend":"up","percent":"12.5%","icon":"👥","bg":"#EFF6FF","color":"#1E40AF","target":"employees"},
-        {"label":"Skilled Employees","value":"180","trend":"up","percent":"15.8%","icon":"🎓","bg":"#F0FDF4","color":"#166534","target":"skills"},
-        {"label":"Training Required","value":"25","trend":"up","percent":"3.2%","icon":"📖","bg":"#FFF7ED","color":"#9A3412","target":"training"},
-        {"label":"Departments","value":"21","trend":"neutral","percent":"No change","icon":"🏢","bg":"#F5F3FF","color":"#5B21B6","target":"departments"},
-        {"label":"Production Efficiency","value":"88.6%","trend":"up","percent":"5.6%","icon":"📊","bg":"#E0F2FE","color":"#0C4A6E","target":"production"},
-        {"label":"Monthly Output","value":"₹12.4K","trend":"down","percent":"2.3%","icon":"₹","bg":"#FEF2F2","color":"#991B1B","target":"reports"}
+        {"label":"Total Records", "value":f"{total_records:,}", "trend":"up", "percent":"12.5%", "icon":"📋", "bg":"#EFF6FF", "color":"#1E40AF"},
+        {"label":"Total Employees", "value":f"{total_employees:,}", "trend":"up", "percent":"15.8%", "icon":"👥", "bg":"#F0FDF4", "color":"#166534"},
+        {"label":"Department Count", "value":f"{dept_count}", "trend":"neutral", "percent":"No change", "icon":"🏢", "bg":"#F5F3FF", "color":"#5B21B6"},
+        {"label":"Attendance %", "value":f"{round(attendance_pct,1)}%", "trend":"up", "percent":"3.2%", "icon":"📊", "bg":"#FFF7ED", "color":"#9A3412"},
+        {"label":"Efficiency", "value":f"{avg_efficiency}%", "trend":"up", "percent":"5.6%", "icon":"📈", "bg":"#E0F2FE", "color":"#0C4A6E"},
+        {"label":"Total Production", "value":f"{total_production:,}", "trend":"down", "percent":"2.3%", "icon":"🏭", "bg":"#FEF2F2", "color":"#991B1B"},
     ]
     
     for col, kpi in zip([kpi_col1, kpi_col2, kpi_col3, kpi_col4, kpi_col5, kpi_col6], kpi_items):
@@ -377,318 +427,207 @@ if st.session_state.selected_page == "home":
             trend_icon = "↑" if kpi["trend"] == "up" else "↓" if kpi["trend"] == "down" else "→"
             trend_color = "#22C55E" if kpi["trend"] == "up" else "#EF4444" if kpi["trend"] == "down" else "#6B7280"
             st.markdown(f"""
-            <div class="kpi-card">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <span class="kpi-label">{kpi['label']}</span>
-                    <div style="
-                        width:56px;
-                        height:56px;
-                        border-radius:16px;
-                        display:flex;
-                        align-items:center;
-                        justify-content:center;
-                        font-size:28px;
-                        background:{kpi['bg']};
-                        color:{kpi['color']};
-                    ">
-                        {kpi['icon']}
-                    </div>
-                </div>
-                <div class="kpi-value">{kpi['value']}</div>
-                <div class="kpi-trend" style="color:{trend_color}; display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:16px; font-weight:900;">{trend_icon}</span>
-                    <span>{kpi['percent']} this month</span>
-                </div>
-            </div>
+            &lt;div class="kpi-card"&gt;
+                &lt;div style="display:flex; justify-content:space-between; align-items:flex-start;"&gt;
+                    &lt;span class="kpi-label"&gt;{kpi['label']}&lt;/span&gt;
+                    &lt;div style="width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;background:{kpi['bg']};color:{kpi['color']};"&gt;{kpi['icon']}&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class="kpi-value"&gt;{kpi['value']}&lt;/div&gt;
+                &lt;div class="kpi-trend" style="color:{trend_color}; display:flex; align-items:center; gap:8px;"&gt;
+                    &lt;span style="font-size:16px; font-weight:900;"&gt;{trend_icon}&lt;/span&gt;
+                    &lt;span&gt;{kpi['percent']} this month&lt;/span&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
             """, unsafe_allow_html=True)
-            
-            if st.button(f"View Details", key=f"kpi_btn_{kpi['label']}", use_container_width=True):
-                st.session_state.selected_page = kpi["target"]
-                st.rerun()
     
-    st.markdown("<div style='height:24px;'></div>", unsafe_allow_html=True)
+    st.markdown("&lt;div style='height:24px;'&gt;&lt;/div&gt;", unsafe_allow_html=True)
     
+    # Charts
     mid_col1, mid_col2, mid_col3 = st.columns([3, 2, 2])
     
     with mid_col1:
         with st.container():
             st.markdown("""
-            <div class="chart-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-                    <span class="chart-title">Employee Attendance Trend</span>
-                    <div style="
-                        background:#F8FAFC;
-                        border:1px solid #E2E8F0;
-                        border-radius:12px;
-                        padding:10px 20px;
-                    ">
-                        <span style="font-size:14px; font-weight:700; color:#0A2A66;">This Month</span>
-                    </div>
-                </div>
+            &lt;div class="chart-card"&gt;
+                &lt;div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;"&gt;
+                    &lt;span class="chart-title"&gt;Trend Analysis&lt;/span&gt;
+                &lt;/div&gt;
             """, unsafe_allow_html=True)
             
-            fig_attendance = px.line(
-                attendance_df,
-                x="Date",
-                y=["Present","Absent"],
-                template="plotly_white",
-                color_discrete_map={"Present":"#22C55E","Absent":"#EF4444"},
-                line_shape="spline"
-            )
-            fig_attendance.update_traces(line=dict(width=4), marker=dict(size=7), fill='tozeroy', fillcolor='rgba(34,197,94,0.1)')
-            fig_attendance.update_layout(
-                height=340, margin=dict(l=0,r=0,t=0,b=0),
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(size=14)),
-                xaxis=dict(title="", showgrid=False, zeroline=False, tickfont=dict(size=13)),
-                yaxis=dict(title="", gridcolor="#E2E8F0", tickfont=dict(size=13))
-            )
-            st.plotly_chart(fig_attendance, use_container_width=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            plot_cols = [col for col in numeric_cols if col != 'EmployeeID'][:3]
+            if plot_cols:
+                if 'Date' in df.columns:
+                    fig = px.line(df, x='Date', y=plot_cols, template='plotly_white', line_shape='spline')
+                else:
+                    fig = px.line(df, y=plot_cols, template='plotly_white', line_shape='spline')
+                fig.update_layout(height=340, margin=dict(l=0,r=0,t=0,b=0), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(size=14)))
+                st.plotly_chart(fig, use_container_width=True)
+            st.markdown("&lt;/div&gt;", unsafe_allow_html=True)
     
     with mid_col2:
         with st.container():
             st.markdown("""
-            <div class="chart-card">
-                <span class="chart-title">Department Wise Distribution</span>
+            &lt;div class="chart-card"&gt;
+                &lt;span class="chart-title"&gt;Distribution&lt;/span&gt;
             """, unsafe_allow_html=True)
             
-            fig_dept = px.pie(
-                departments_df,
-                values="Count",
-                names="Department",
-                template="plotly_white",
-                hole=0.65,
-                color_discrete_sequence=["#0A2A66","#2563EB","#7C3AED","#22C55E","#F97316","#06B6D4","#64748B"]
-            )
-            fig_dept.update_traces(textposition='outside', textinfo='percent+label', textfont=dict(size=13))
-            fig_dept.update_layout(
-                height=340, margin=dict(l=0,r=0,t=24,b=0), showlegend=True, legend=dict(font=dict(size=13)),
-                annotations=[dict(text='221<br>Total', x=0.5, y=0.5, font_size=24, font_family='Inter', showarrow=False)]
-            )
-            st.plotly_chart(fig_dept, use_container_width=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            if 'Department' in df.columns:
+                dept_dist = df['Department'].value_counts().reset_index()
+                dept_dist.columns = ['Department', 'Count']
+                fig_dept = px.pie(dept_dist, values='Count', names='Department', template='plotly_white', hole=0.65, color_discrete_sequence=["#0A2A66","#2563EB","#7C3AED","#22C55E","#F97316","#06B6D4","#64748B"])
+                fig_dept.update_layout(height=340, margin=dict(l=0,r=0,t=24,b=0), showlegend=True, legend=dict(font=dict(size=13)))
+                st.plotly_chart(fig_dept, use_container_width=True)
+            st.markdown("&lt;/div&gt;", unsafe_allow_html=True)
     
     with mid_col3:
         with st.container():
             st.markdown("""
-            <div class="chart-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-                    <span class="chart-title">Recent Activities</span>
-                    <button style="
-                        background:transparent; border:none; color:#2563EB; font-size:14px; font-weight:800; cursor:pointer;
-                    ">View All</button>
-                </div>
+            &lt;div class="chart-card"&gt;
+                &lt;div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;"&gt;
+                    &lt;span class="chart-title"&gt;Recent Activities&lt;/span&gt;
+                &lt;/div&gt;
             """, unsafe_allow_html=True)
             
-            activities = [
-                {"icon":"👤","text":"Employee data updated","time":"10:15 AM","bg":"#EFF6FF","color":"#1E40AF"},
-                {"icon":"📋","text":"Skill matrix refreshed","time":"09:48 AM","bg":"#E0F2FE","color":"#0C4A6E"},
-                {"icon":"📊","text":"Production report uploaded","time":"09:30 AM","bg":"#F0FDF4","color":"#166534"},
-                {"icon":"📦","text":"Stock data updated","time":"09:15 AM","bg":"#FFF7ED","color":"#9A3412"},
-                {"icon":"🔧","text":"Toolroom efficiency calculated","time":"08:50 AM","bg":"#FEF2F2","color":"#991B1B"}
-            ]
-            
-            for act in activities:
-                st.markdown(f"""
-                <div style="
-                    display:flex; align-items:flex-start; gap:16px; padding:18px 0; border-bottom:1px solid #F1F5F9;
-                ">
-                    <div style="
-                        width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;
-                        font-size:22px; background:{act['bg']}; color:{act['color']}; flex-shrink:0;
-                    ">
-                        {act['icon']}
-                    </div>
-                    <div style="flex:1;">
-                        <p style="margin:0 0 8px; font-size:15px; color:#1E293B; font-weight:700;">{act['text']}</p>
-                        <p style="margin:0; font-size:13px; color:#64748B; font-weight:600;">{act['time']}</p>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            st.dataframe(df.head(5), hide_index=True, use_container_width=True)
+            st.markdown("&lt;/div&gt;", unsafe_allow_html=True)
     
-    st.markdown("<div style='height:24px;'></div>", unsafe_allow_html=True)
+    st.markdown("&lt;div style='height:24px;'&gt;&lt;/div&gt;", unsafe_allow_html=True)
     
-    bottom_col1, bottom_col2, bottom_col3 = st.columns([2,1.8,1.2])
-    
+    # Bottom section
+    bottom_col1, bottom_col2 = st.columns([2, 2])
     with bottom_col1:
         with st.container():
             st.markdown("""
-            <div class="chart-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-                    <span class="chart-title">Skill Matrix Summary</span>
-                    <div style="
-                        background: linear-gradient(135deg,#2563EB 0%,#0A2A66 100%);
-                        color:white; padding:12px 22px; border-radius:12px; font-weight:800; font-size:14px;
-                    ">
-                        View Details
-                    </div>
-                </div>
+            &lt;div class="chart-card"&gt;
+                &lt;span class="chart-title"&gt;Full Data Preview&lt;/span&gt;
             """, unsafe_allow_html=True)
-            
-            st.dataframe(skills_df,
-                column_config={"Average Level": st.column_config.ProgressColumn("Average Level", format="%d%%", min_value=0, max_value=100, width="medium")},
-                use_container_width=True,
-                hide_index=True
-            )
-            st.markdown("</div>", unsafe_allow_html=True)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            st.markdown("&lt;/div&gt;", unsafe_allow_html=True)
     
     with bottom_col2:
         with st.container():
             st.markdown("""
-            <div class="chart-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-                    <span class="chart-title">Training Status</span>
-                    <div style="
-                        background:#F8FAFC;
-                        border:1px solid #E2E8F0;
-                        border-radius:12px;
-                        padding:10px 20px;
-                    ">
-                        <span style="font-size:14px; font-weight:700; color:#0A2A66;">This Month</span>
-                    </div>
-                </div>
-                <div style="display:flex; gap:28px; align-items:center;">
-                    <div style="
-                        position:relative; width:180px; height:180px; border-radius:50%;
-                        background: conic-gradient(#22C55E 0deg 270deg, #E2E8F0 270deg 360deg);
-                        display:flex; align-items:center; justify-content:center;
-                    ">
-                        <div style="
-                            width:140px; height:140px; border-radius:50%; background:white;
-                            display:flex; align-items:center; justify-content:center; flex-direction:column;
-                        ">
-                            <span style="font-size:44px; font-weight:900; color:#0A2A66;">75%</span>
-                            <span style="font-size:15px; color:#64748B; font-weight:700; margin-top:4px;">Completed</span>
-                        </div>
-                    </div>
-                    <div style="flex:1;">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                            <span style="font-size:15px; color:#475569; font-weight:700;">Total Trainings</span>
-                            <span style="font-size:15px; color:#0A2A66; font-weight:900;">40</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                            <span style="font-size:15px; color:#475569; font-weight:700;">Completed</span>
-                            <span style="font-size:15px; color:#22C55E; font-weight:900;">30</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                            <span style="font-size:15px; color:#475569; font-weight:700;">In Progress</span>
-                            <span style="font-size:15px; color:#F97316; font-weight:900;">8</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between;">
-                            <span style="font-size:15px; color:#475569; font-weight:700;">Pending</span>
-                            <span style="font-size:15px; color:#EF4444; font-weight:900;">2</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            &lt;div class="chart-card"&gt;
+                &lt;span class="chart-title"&gt;Statistics Summary&lt;/span&gt;
             """, unsafe_allow_html=True)
-    
-    with bottom_col3:
-        with st.container():
-            st.markdown("""
-            <div class="chart-card">
-                <span class="chart-title">Quick Actions</span>
-            """, unsafe_allow_html=True)
-            
-            quick_col1, quick_col2 = st.columns(2)
-            with quick_col1:
-                st.markdown("""
-                <div class="quick-action-card" style="margin-bottom:20px;">
-                    <div class="quick-action-icon">⬆️</div>
-                    <div class="quick-action-text">Upload Excel</div>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                st.markdown("""
-                <div class="quick-action-card">
-                    <div class="quick-action-icon">🔄</div>
-                    <div class="quick-action-text">Refresh Data</div>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            with quick_col2:
-                st.markdown("""
-                <div class="quick-action-card" style="margin-bottom:20px;">
-                    <div class="quick-action-icon">⬇️</div>
-                    <div class="quick-action-text">Download Report</div>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                st.markdown("""
-                <div class="quick-action-card">
-                    <div class="quick-action-icon">📄</div>
-                    <div class="quick-action-text">Export PDF</div>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            st.markdown("</div>", unsafe_allow_html=True)
-    
-    st.markdown(f"""
-    <div style="
-        text-align:center; padding:40px 28px 28px; display:flex; justify-content:space-between; align-items:center;
-        border-top:1px solid #E2E8F0; margin-top:12px;
-    ">
-        <div style="color:#64748B; font-size:15px; font-weight:600;">
-            ⏰ {datetime.now().strftime('%A, %B %d, %Y')} • {datetime.now().strftime('%I:%M %p')}
-        </div>
-        <div style="color:#64748B; font-size:15px; font-weight:600;">
-            📊 Dashboard last updated: {datetime.now().strftime('%b %d, %Y at %I:%M %p')}
-        </div>
-        <div style="display:flex; align-items:center; gap:16px;">
-            <span style="color:#64748B; font-size:15px; font-weight:600;">Auto refresh every 5 minutes</span>
-            <div style="
-                width:56px; height:30px; background:linear-gradient(135deg,#22C55E 0%,#16A34A 100%);
-                border-radius:16px; display:flex; align-items:center; padding:4px;
-            ">
-                <div style="width:24px; height:24px; background:white; border-radius:50%; margin-left:auto;"></div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+            if numeric_cols:
+                st.dataframe(df[numeric_cols].describe(), use_container_width=True)
+            st.markdown("&lt;/div&gt;", unsafe_allow_html=True)
 
 elif st.session_state.selected_page == "employees":
     with st.container():
         st.markdown("""
-        <div class="chart-card">
-            <span class="chart-title">👥 Employee Dashboard</span>
-        </div>
+        &lt;div class="chart-card"&gt;
+            &lt;span class="chart-title"&gt;👥 Employee Dashboard&lt;/span&gt;
+        &lt;/div&gt;
         """, unsafe_allow_html=True)
         
-        uploaded_file = st.file_uploader("📤 Upload Employee Data Excel", type=['xlsx', 'xls'])
-        col1, col2, col3 = st.columns(3)
+        st.markdown("&lt;div style='height:20px;'&gt;&lt;/div&gt;", unsafe_allow_html=True)
         
-        with col1:
-            st.button("➕ Add Employee", use_container_width=True)
-        
-        with col2:
-            st.button("📥 Download Report", use_container_width=True)
-        
-        with col3:
-            st.button("🔄 Refresh", use_container_width=True)
-        
-        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
-        st.info("This is the Employee Dashboard - full features coming soon!")
+        if 'EmployeeID' in df.columns or 'Name' in df.columns:
+            emp_cols = [col for col in df.columns if 'emp' in col.lower() or 'name' in col.lower() or 'department' in col.lower()]
+            if emp_cols:
+                st.dataframe(df[emp_cols + list(set(df.columns) - set(emp_cols))], use_container_width=True, hide_index=True)
+            else:
+                st.dataframe(df, use_container_width=True, hide_index=True)
+        else:
+            st.dataframe(df, use_container_width=True, hide_index=True)
 
-else:
-    page_titles = {
-        "efficiency": "📈 Employee Efficiency",
-        "skills": "🎯 Skill Matrix",
-        "stock": "📦 Stock Analysis",
-        "production": "🏭 Production Planning",
-        "toolroom": "🔧 Toolroom Efficiency",
-        "profit": "💰 Profit Analyzer",
-        "training": "📚 Training Dashboard",
-        "departments": "🏢 Department Analytics",
-        "reports": "📊 Production Reports"
-    }
-    
+elif st.session_state.selected_page == "attendance":
     with st.container():
-        st.markdown(f"""
-        <div class="chart-card">
-            <span class="chart-title">{page_titles[st.session_state.selected_page]}</span>
-        </div>
+        st.markdown("""
+        &lt;div class="chart-card"&gt;
+            &lt;span class="chart-title"&gt;📊 Attendance Dashboard&lt;/span&gt;
+        &lt;/div&gt;
         """, unsafe_allow_html=True)
         
-        st.info(f"This is the {page_titles[st.session_state.selected_page]} page - full features coming soon!")
+        st.markdown("&lt;div style='height:20px;'&gt;&lt;/div&gt;", unsafe_allow_html=True)
+        
+        att_cols = [col for col in df.columns if 'att' in col.lower() or 'present' in col.lower() or 'absent' in col.lower()]
+        if att_cols:
+            fig = px.bar(df, y=att_cols, title='Attendance Overview', template='plotly_white')
+            st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(df, use_container_width=True, hide_index=True)
 
+elif st.session_state.selected_page == "production":
+    with st.container():
+        st.markdown("""
+        &lt;div class="chart-card"&gt;
+            &lt;span class="chart-title"&gt;🏭 Production Dashboard&lt;/span&gt;
+        &lt;/div&gt;
+        """, unsafe_allow_html=True)
+        
+        st.markdown("&lt;div style='height:20px;'&gt;&lt;/div&gt;", unsafe_allow_html=True)
+        
+        prod_cols = [col for col in df.columns if 'prod' in col.lower() or 'production' in col.lower() or 'efficiency' in col.lower()]
+        if prod_cols:
+            if 'Date' in df.columns:
+                fig = px.line(df, x='Date', y=prod_cols, template='plotly_white', line_shape='spline')
+            else:
+                fig = px.line(df, y=prod_cols, template='plotly_white', line_shape='spline')
+            st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+elif st.session_state.selected_page == "skills":
+    with st.container():
+        st.markdown("""
+        &lt;div class="chart-card"&gt;
+            &lt;span class="chart-title"&gt;🎯 Skill Matrix&lt;/span&gt;
+        &lt;/div&gt;
+        """, unsafe_allow_html=True)
+        
+        st.markdown("&lt;div style='height:20px;'&gt;&lt;/div&gt;", unsafe_allow_html=True)
+        
+        if 'SkillLevel' in df.columns:
+            fig = px.histogram(df, x='SkillLevel', nbins=20, template='plotly_white', title='Skill Level Distribution')
+            st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+elif st.session_state.selected_page == "stock":
+    with st.container():
+        st.markdown("""
+        &lt;div class="chart-card"&gt;
+            &lt;span class="chart-title"&gt;📦 Stock Analysis&lt;/span&gt;
+        &lt;/div&gt;
+        """, unsafe_allow_html=True)
+        
+        st.markdown("&lt;div style='height:20px;'&gt;&lt;/div&gt;", unsafe_allow_html=True)
+        
+        if 'Stock' in df.columns:
+            if 'Date' in df.columns:
+                fig = px.line(df, x='Date', y='Stock', template='plotly_white', line_shape='spline', title='Stock Trend')
+            else:
+                fig = px.line(df, y='Stock', template='plotly_white', line_shape='spline', title='Stock Trend')
+            st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+elif st.session_state.selected_page == "toolroom":
+    with st.container():
+        st.markdown("""
+        &lt;div class="chart-card"&gt;
+            &lt;span class="chart-title"&gt;🔧 Toolroom Dashboard&lt;/span&gt;
+        &lt;/div&gt;
+        """, unsafe_allow_html=True)
+        
+        st.markdown("&lt;div style='height:20px;'&gt;&lt;/div&gt;", unsafe_allow_html=True)
+        
+        if 'Tool' in df.columns or 'tool' in df.columns:
+            st.dataframe(df, use_container_width=True, hide_index=True)
+        else:
+            st.dataframe(df, use_container_width=True, hide_index=True)
+
+elif st.session_state.selected_page == "profit":
+    with st.container():
+        st.markdown("""
+        &lt;div class="chart-card"&gt;
+            &lt;span class="chart-title"&gt;💰 Profit Analysis&lt;/span&gt;
+        &lt;/div&gt;
+        """, unsafe_allow_html=True)
+        
+        st.markdown("&lt;div style='height:20px;'&gt;&lt;/div&gt;", unsafe_allow_html=True)
+        
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        if numeric_cols:
+            fig = px.bar(df, y=numeric_cols, title='Profit &amp; Metrics Overview', template='plotly_white')
+            st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(df, use_container_width=True, hide_index=True)
